@@ -61,8 +61,6 @@ function setup(){
 
   myMap = mappa.tileMap(options);
   myMap.overlay(canvas);
-
-  //console.log(pos[1]);
   myMap.onChange(drawPoint);
 
   let editBtn = createButton('Edit (e)').parent("a");
@@ -77,17 +75,18 @@ function setup(){
   exportBtn.style('z-index', '1000');
   exportBtn.class("btn btn-default");
 
-
-    //<input type="file" id="files" name="files[]" multiple />
   // Make the file input
   var fileInput = createInput();
-  fileInput.position(280,10);
+  fileInput.position(0,0);
+  fileInput.id("upload");
+  //fileInput.position(280,10);
   // Set attribute to file
   fileInput.attribute('type','file');
   // If we want to allow multiple files
   fileInput.attribute('multiple','');
   fileInput.style('z-index', '2000');
-  fileInput.style('opacity', '0');
+  fileInput.style('display', 'none');
+  //fileInput.style('opacity', '0');
   // If a file is selected this event will be triggered
   fileInput.elt.addEventListener('change', handleFileSelect, false);
 
@@ -96,24 +95,17 @@ function setup(){
   fakeButton.position(280,10);
   fakeButton.style('z-index', '1000');
   fakeButton.class("btn btn-default");
-
-  // For the list of files
-  var list = createElement('ol','');
+  fakeButton.attribute("onclick", "document.getElementById(\'upload\').click()");
 
   // Function to handle when a file is selected
   function handleFileSelect(evt) {
-
     // A FileList
     var files = evt.target.files;
+
     // Show some properties
     for (var i = 0, f; f = files[i]; i++) {
-      var file = createElement('li',f.name + ' ' + f.type + ' ' + f.size + ' bytes');
-      file.parent(list);
-
       // Read the file and process the result
       var reader = new FileReader();
-
-      //console.log(reader);
 
       reader.readAsText(f);
       reader.onload = function(e) {
@@ -121,9 +113,11 @@ function setup(){
       }
     }
   }
+}
 
-
-
+function windowResized() {
+  console.log(windowWidth + " " + windowHeight);
+  resizeCanvas(windowWidth, windowHeight);
 }
 
 function draw(){
