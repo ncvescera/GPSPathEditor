@@ -116,7 +116,6 @@ function setup(){
 }
 
 function windowResized() {
-  console.log(windowWidth + " " + windowHeight);
   resizeCanvas(windowWidth, windowHeight);
 }
 
