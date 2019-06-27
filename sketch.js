@@ -65,13 +65,13 @@ function setup(){
   //console.log(pos[1]);
   myMap.onChange(drawPoint);
 
-  editBtn = createButton('Edit (e)').parent("a");
+  let editBtn = createButton('Edit (e)').parent("a");
   editBtn.mousePressed(enable_edit);
   editBtn.position(60, 10);
   editBtn.style('z-index', '1000');
   editBtn.class("btn btn-default");
 
-  exportBtn = createButton('Export GPX (u)').parent("a");
+  let exportBtn = createButton('Export GPX (u)').parent("a");
   exportBtn.mousePressed(exportXML);
   exportBtn.position(145, 10);
   exportBtn.style('z-index', '1000');
@@ -86,9 +86,16 @@ function setup(){
   fileInput.attribute('type','file');
   // If we want to allow multiple files
   fileInput.attribute('multiple','');
-  fileInput.style('z-index', '1000');
+  fileInput.style('z-index', '2000');
+  fileInput.style('opacity', '0');
   // If a file is selected this event will be triggered
   fileInput.elt.addEventListener('change', handleFileSelect, false);
+
+  let fakeButton = createButton('Upload File').parent("a");
+  //fakeButton.mousePressed(exportXML);
+  fakeButton.position(280,10);
+  fakeButton.style('z-index', '1000');
+  fakeButton.class("btn btn-default");
 
   // For the list of files
   var list = createElement('ol','');
