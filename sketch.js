@@ -53,6 +53,7 @@ function process(text) {
 }
 
 function setup(){
+  cursor('https://s3.amazonaws.com/mupublicdata/cursor.cur');
   //canvas = createCanvas(850,760);
   canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("a");
@@ -76,7 +77,7 @@ function setup(){
   exportBtn.class("btn btn-default");
 
   // Make the file input
-  var fileInput = createInput();
+  var fileInput = createInput().parent("a");
   fileInput.position(0,0);
   fileInput.id("upload");
   //fileInput.position(280,10);
@@ -120,7 +121,7 @@ function windowResized() {
 }
 
 function draw(){
-  cursor('https://s3.amazonaws.com/mupublicdata/cursor.cur');
+
   /*
   if(mouseIsPressed) {
     if(mouseButton == CENTER) {
