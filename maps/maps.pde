@@ -3,8 +3,41 @@ import de.fhpotsdam.unfolding.geo.*;
 import de.fhpotsdam.unfolding.utils.*;  
 import de.fhpotsdam.unfolding.providers.*;
 import de.fhpotsdam.unfolding.marker.*;
-import controlP5.*;
+
 import java.util.*;
+
+class Button {
+  String label; // button label
+  float x;      // top left corner x position
+  float y;      // top left corner y position
+  float w;      // width of button
+  float h;      // height of button
+  
+  // constructor
+  Button(String labelB, float xpos, float ypos, float widthB, float heightB) {
+    label = labelB;
+    x = xpos;
+    y = ypos;
+    w = widthB;
+    h = heightB;
+  }
+  
+  void Draw() {
+    fill(218);
+    stroke(141);
+    rect(x, y, w, h, 10);
+    textAlign(CENTER, CENTER);
+    fill(0);
+    text(label, x + (w / 2), y + (h / 2));
+  }
+  
+  boolean MouseIsOver() {
+    if (mouseX > x && mouseX < (x + w) && mouseY > y && mouseY < (y + h)) {
+      return true;
+    }
+    return false;
+  }
+}
 
 class Pos {
   float lat;
@@ -46,79 +79,85 @@ class XMLParser {
 
 UnfoldingMap map;
 List<Location> locations;
-ControlP5 gui;
 MarkerManager manager;
+Button btn_import;
 
 void setup() {
   size(900, 800);
-  gui = new ControlP5(this);
-
-  gui.addTextfield("input")
-    .setPosition(10, 10)
-      .setSize(200, 20)
-        ;
-
-  gui.addButton("Inport")
-    .setValue(0)
-      .setPosition(220, 10)
-        .setSize(40, 20)
-          .activateBy(ControlP5.RELEASE)
-            ;
-
-
-
+  locations = new ArrayList<Location>();
+  
   map = new UnfoldingMap(this, new Microsoft.AerialProvider());
   //map = new UnfoldingMap(this);
   //map = new UnfoldingMap(this, new OpenStreetMapProvider());
   MapUtils.createDefaultEventDispatcher(this, map);
   manager = map.getDefaultMarkerManager();
   //List<Marker> list = new ArrayList<Marker>();
+  btn_import = new Button(" Import File", 10, 10, 70, 30);
 }
 
 void draw() {
-  map.draw();
+  try {
+    map.draw();
+  } catch(Exception e) {
+    println(e);
+  }
+  btn_import.Draw();
 }
 
-public void Inport(int value) {
-  String t = gui.get(Textfield.class, "input").getText();
-
-  if (!t.equals("")) {
-    locations = new ArrayList<Location>();
-
-    List<Marker> tmp = map.getMarkers();
-
-    if (tmp.size() > 0) {
-      manager.clearMarkers();
+void fileSelected(File selection) {
+   // String t = gui.get(Textfield.class, "input").getText();
+  if (selection == null) {
+    println("Window was closed or the user hit cancel.");
+  } else {
+   // println("User selected " + selection.getAbsolutePath());
+  
+    String t = selection.getAbsolutePath();
+    if (!t.equals("")) {
+      //locations = new ArrayList<Location>();
+      if(locations.size() > 0)
+        locations.clear();
+        
+      List<Marker> tmp = map.getMarkers();
+  
+      if (tmp.size() > 0) {
+        manager.clearMarkers();
+      }
+  
+      XMLParser xml = new XMLParser(t);
+      Pos[] elems = xml.parse();
+  
+      for (int i = 0; i < elems.length; i++) {
+        locations.add(new Location(elems[i].lat, elems[i].lon));
+        //SimpleLinesMarker m = new SimpleLinesMarker(new Location(elems[i].lat, elems[i].lon).getLocations());
+      }
+  
+  
+      SimpleLinesMarker m = new SimpleLinesMarker(locations);
+      m.setColor(color(233, 57, 35));
+      m.setStrokeWeight(5);
+  
+      map.addMarkers(m);
+  
+      for (Location location : locations) {
+        SimplePointMarker mark = new SimplePointMarker(location);
+  
+        mark.setColor(color(0, 0, 255)); 
+        mark.setStrokeWeight(1);
+        map.addMarker(mark);
+      }
+  
+      map.zoomAndPanTo(locations.get(0), 12);
     }
-
-    XMLParser xml = new XMLParser(t);
-    Pos[] elems = xml.parse();
-
-    for (int i = 0; i < elems.length; i++) {
-      locations.add(new Location(elems[i].lat, elems[i].lon));
-      //SimpleLinesMarker m = new SimpleLinesMarker(new Location(elems[i].lat, elems[i].lon).getLocations());
-    }
-
-
-    SimpleLinesMarker m = new SimpleLinesMarker(locations);
-    m.setColor(color(233, 57, 35));
-    m.setStrokeWeight(5);
-
-    map.addMarkers(m);
-
-    for (Location location : locations) {
-      SimplePointMarker mark = new SimplePointMarker(location);
-
-      mark.setColor(color(0, 0, 255)); 
-      mark.setStrokeWeight(1);
-      map.addMarker(mark);
-    }
-
-    map.zoomAndPanTo(locations.get(0), 12);
   }
 }
 
 public void mousePressed(){
+  if(mouseButton == LEFT) {
+    if(btn_import.MouseIsOver()) {
+      selectInput("Select a file to process:", "fileSelected");
+    }
+  }
+  
   if(mouseButton == RIGHT){
     SimplePointMarker tmp = new SimplePointMarker(map.getLocation(mouseX, mouseY));
     Marker near = manager.getNearestMarker(mouseX, mouseY);
