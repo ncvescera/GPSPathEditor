@@ -23,9 +23,9 @@ let options = {
     lat: 42.504154,
     lng: 12.646361,
     //zoom: 6,
-    zoom: ((localStorage.getItem("zoom") != null) ? parseInt(localStorage.getItem("zoom")) : 6),
+    zoom: ((sessionStorage.getItem("zoom") != null) ? parseInt(sessionStorage.getItem("zoom")) : 6),
     //style: "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
-    style: ((localStorage.getItem("style") != null) ? localStorage.getItem("style") : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
+    style: ((sessionStorage.getItem("style") != null) ? sessionStorage.getItem("style") : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 }
 
 let styles = ["http://{s}.tile.osm.org/{z}/{x}/{y}.png", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"];
@@ -33,7 +33,7 @@ let styles = ["http://{s}.tile.osm.org/{z}/{x}/{y}.png", "https://server.arcgiso
 function process(text) {
   pos = [];
 
-  localStorage.setItem("posTxt", text);
+  sessionStorage.setItem("posTxt", text);
 
   parser=new DOMParser();
   xmlDoc=parser.parseFromString(text,"text/xml");
@@ -109,12 +109,12 @@ function setup(){
   reload.style('z-index', '1000');
   reload.class("btn btn-default");
 
-  let arr = JSON.parse(localStorage.getItem("data"));
+  let arr = JSON.parse(sessionStorage.getItem("data"));
   if(arr != null) {
     pos = arr;
   }
   /*
-  let posTxt = localStorage.getItem("posTxt");
+  let posTxt = sessionStorage.getItem("posTxt");
   if(posTxt != null) {
     process(posTxt);
   }*/
@@ -137,7 +137,10 @@ function setup(){
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  updateSessionVars();
+  //updateSessionVars();
+  //resizeCanvas(windowWidth, windowHeight);
+  location.reload();
 }
 
 function draw(){
@@ -174,24 +177,28 @@ function draw(){
   }*/
 
 }
+function updateSessionVars() {
+  let locZoom = myMap.zoom();
+  if( locZoom > 0)
+    sessionStorage.setItem("zoom", locZoom.toString());
+
+  sessionStorage.setItem("data",JSON.stringify(pos));
+}
 
 function changeMap() {
-  let locStyle = localStorage.getItem("style");
+  let locStyle = sessionStorage.getItem("style");
   if(locStyle != null && locStyle.localeCompare(styles[0]) == 0) {
-    localStorage.setItem("style", styles[1]);
+    sessionStorage.setItem("style", styles[1]);
   }
   else if(locStyle == null) {
-    localStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png")
+    sessionStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png")
   }
   else {
-    localStorage.setItem("style", styles[0]);
+    sessionStorage.setItem("style", styles[0]);
   }
-  //localStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png");
-  let locZoom = myMap.zoom();
-  localStorage.setItem("zoom", locZoom.toString());
+  //sessionStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png");
 
-  localStorage.setItem("data",JSON.stringify(pos));
-
+  updateSessionVars();
 
   location.reload();
 }
