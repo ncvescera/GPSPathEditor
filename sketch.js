@@ -22,7 +22,8 @@ let pos = [];
 let options = {
     lat: 42.504154,
     lng: 12.646361,
-    zoom: 6,
+    //zoom: 6,
+    zoom: ((localStorage.getItem("zoom") != null) ? parseInt(localStorage.getItem("zoom")) : 6),
     //style: "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
     style: ((localStorage.getItem("style") != null) ? localStorage.getItem("style") : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 }
@@ -31,6 +32,8 @@ let styles = ["http://{s}.tile.osm.org/{z}/{x}/{y}.png", "https://server.arcgiso
 
 function process(text) {
   pos = [];
+
+  localStorage.setItem("posTxt", text);
 
   parser=new DOMParser();
   xmlDoc=parser.parseFromString(text,"text/xml");
@@ -106,6 +109,15 @@ function setup(){
   reload.style('z-index', '1000');
   reload.class("btn btn-default");
 
+  let arr = JSON.parse(localStorage.getItem("data"));
+  if(arr != null) {
+    pos = arr;
+  }
+  /*
+  let posTxt = localStorage.getItem("posTxt");
+  if(posTxt != null) {
+    process(posTxt);
+  }*/
   // Function to handle when a file is selected
   function handleFileSelect(evt) {
     // A FileList
@@ -175,6 +187,13 @@ function changeMap() {
     localStorage.setItem("style", styles[0]);
   }
   //localStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png");
+  let locZoom = myMap.zoom();
+  localStorage.setItem("zoom", locZoom.toString());
+
+  if(pos.length > 0) {
+    localStorage.setItem("data",JSON.stringify(pos));
+  }
+
   location.reload();
 }
 
