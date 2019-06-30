@@ -190,9 +190,8 @@ function changeMap() {
   let locZoom = myMap.zoom();
   localStorage.setItem("zoom", locZoom.toString());
 
-  if(pos.length > 0) {
-    localStorage.setItem("data",JSON.stringify(pos));
-  }
+  localStorage.setItem("data",JSON.stringify(pos));
+
 
   location.reload();
 }
