@@ -24,8 +24,10 @@ let options = {
     lng: 12.646361,
     zoom: 6,
     //style: "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
-    style: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+    style: ((localStorage.getItem("style") != null) ? localStorage.getItem("style") : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 }
+
+let styles = ["http://{s}.tile.osm.org/{z}/{x}/{y}.png", "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"];
 
 function process(text) {
   pos = [];
@@ -98,6 +100,12 @@ function setup(){
   fakeButton.class("btn btn-default");
   fakeButton.attribute("onclick", "document.getElementById(\'upload\').click()");
 
+  let reload = createButton('Change Map').parent("a");
+  reload.mousePressed(changeMap);
+  reload.position(390, 10);
+  reload.style('z-index', '1000');
+  reload.class("btn btn-default");
+
   // Function to handle when a file is selected
   function handleFileSelect(evt) {
     // A FileList
@@ -153,6 +161,21 @@ function draw(){
     }
   }*/
 
+}
+
+function changeMap() {
+  let locStyle = localStorage.getItem("style");
+  if(locStyle != null && locStyle.localeCompare(styles[0]) == 0) {
+    localStorage.setItem("style", styles[1]);
+  }
+  else if(locStyle == null) {
+    localStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png")
+  }
+  else {
+    localStorage.setItem("style", styles[0]);
+  }
+  //localStorage.setItem("style", "http://{s}.tile.osm.org/{z}/{x}/{y}.png");
+  location.reload();
 }
 
 let edit = false;
