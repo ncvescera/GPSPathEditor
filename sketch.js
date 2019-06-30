@@ -20,8 +20,10 @@ let pos = [];
   }*/
 
 let options = {
-    lat: 42.504154,
-    lng: 12.646361,
+    /*lat: 42.504154,
+    lng: 12.646361,*/
+    lat: ((sessionStorage.getItem("lat") != null) ? parseFloat(sessionStorage.getItem("lat")) : 0),
+    lng: ((sessionStorage.getItem("lng") != null) ? parseFloat(sessionStorage.getItem("lng")) : 0),
     //zoom: 6,
     zoom: ((sessionStorage.getItem("zoom") != null) ? parseInt(sessionStorage.getItem("zoom")) : 6),
     //style: "http://{s}.tile.osm.org/{z}/{x}/{y}.png"
@@ -216,6 +218,15 @@ function keyPressed() {
 
   if(key.toLowerCase() == "u") {
     exportXML();
+  }
+
+  if(key.toLowerCase() == "w") {
+    let x = mouseX;
+    let y = mouseY;
+    let posizione = myMap.pixelToLatLng(x, y);
+
+    sessionStorage.setItem("lat", posizione.lat.toString());
+    sessionStorage.setItem("lng", posizione.lng.toString());
   }
 
 
